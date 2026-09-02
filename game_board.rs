@@ -1,5 +1,7 @@
 pub mod game_board {
-    use rand::RngExt;
+    use std::vec;
+
+use rand::RngExt;
 
     pub struct GameBoard {
         option: i8,
@@ -22,20 +24,33 @@ pub mod game_board {
             let mut rng = rand::rng();
             let mut placed = 0usize;
 
+            let _row_max = master.len() - 1;
+            let _col_max = master[0].len() - 1;
+            let mut range: [[usize; 2]; 2];
+
             while placed < m {
                 let row = rng.random_range(0..h);
                 let col = rng.random_range(0..w);
-
+                
                 if master[row][col] == 0 {
                     master[row][col] = 9;
                     placed += 1;
-                    unsafe {
-                        for i in row-1..row+1 { // row
-                            for j in col-1..col+1 { // col
-                                master[i][j] += 1;
-                            };
+                    range = match (row, col) {
+                        (0, 0)                           => [[row,row+1],[col,col+1]],
+                        (0, _col_max)              => [[row,row+1],[col-1,col]],
+                        (_row_max, 0)              => [[row-1,row],[col,col+1]],
+                        (_row_max, _col_max) => [[row-1,row],[col-1,col]],
+                        (0, _)                           => [[row,row+1],[col-1,col+1]],
+                        (_, _col_max)              => [[row-1,row+1],[col-1,col]],
+                        (_, 0)                           => [[row-1,row+1],[col,col+1]],
+                        (_row_max, _)              => [[row-1,row],[col-1,col+1]],
+                        _ => [[row-1,row+1],[col-1,col+1]],
+                    };
+                    for i in range[0][0]..range[0][1] { // row
+                        for j in range[1][0]..range[1][1] { // col
+                            master[i][j] += 1;
                         };
-                    }
+                    };
                 }
             }
 
@@ -43,16 +58,16 @@ pub mod game_board {
         }
         // fn populate_neighbors(row: usize, col: usize, master: Vec<Vec<i8>>) {
         //     let row_max = self.master.len() - 1;
-        //     let col_max = self.master[0].len() - 1;
+        //     let _col_max = self.master[0].len() - 1;
         //     let range = match (row, col) {
         //         (0, 0)                           => [[row,row+1],[col,col+1]],
-        //         (0, col_max)              => [[row,row+1],[col-1,col]],
+        //         (0, _col_max)              => [[row,row+1],[col-1,col]],
         //         (row_max, 0)              => [[row-1,row],[col,col+1]],
-        //         (row_max, col_max) => [[row-1,row],[col-1,col]],
+        //         (row_max, _col_max) => [[row-1,row],[col-1,col]],
         //         (row_max, _)              => [[row-1,row],[col-1,col+1]],
         //         (0, _)                           => [[row,row+1],[col-1,col+1]],
         //         (_, 0)                           => [[row-1,row+1],[col,col+1]],
-        //         (_, col_max)              => [[row-1,row+1],[col-1,col]],
+        //         (_, _col_max)              => [[row-1,row+1],[col-1,col]],
         //         _ => [[row-1,row+1],[col-1,col+1]],
         //     };
         //     for i in range[0][0]..range[0][1] { // row
