@@ -1,0 +1,4 @@
+
+# Compile
+
+` cargo build `
