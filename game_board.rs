@@ -26,7 +26,6 @@ use rand::RngExt;
 
             let _row_max = master.len() - 1;
             let _col_max = master[0].len() - 1;
-            let mut range: [[usize; 2]; 2];
 
             while placed < m {
                 let row = rng.random_range(0..h);
@@ -35,20 +34,11 @@ use rand::RngExt;
                 if master[row][col] == 0 {
                     master[row][col] = 9;
                     placed += 1;
-                    range = match (row, col) {
-                        (0, 0)                           => [[row,row+1],[col,col+1]],
-                        (0, _col_max)              => [[row,row+1],[col-1,col]],
-                        (_row_max, 0)              => [[row-1,row],[col,col+1]],
-                        (_row_max, _col_max) => [[row-1,row],[col-1,col]],
-                        (0, _)                           => [[row,row+1],[col-1,col+1]],
-                        (_, _col_max)              => [[row-1,row+1],[col-1,col]],
-                        (_, 0)                           => [[row-1,row+1],[col,col+1]],
-                        (_row_max, _)              => [[row-1,row],[col-1,col+1]],
-                        _ => [[row-1,row+1],[col-1,col+1]],
-                    };
-                    for i in range[0][0]..range[0][1] { // row
-                        for j in range[1][0]..range[1][1] { // col
-                            master[i][j] += 1;
+                    for i in row.saturating_sub(1)..=(row + 1).min(_row_max) { // row
+                        for j in col.saturating_sub(1)..=(col + 1).min(_col_max) { // col
+                            if master[i][j] != 9 {
+                                master[i][j] += 1;
+                            };
                         };
                     };
                 }
@@ -56,29 +46,13 @@ use rand::RngExt;
 
             Self { option, board, master }
         }
-        // fn populate_neighbors(row: usize, col: usize, master: Vec<Vec<i8>>) {
-        //     let row_max = self.master.len() - 1;
-        //     let _col_max = self.master[0].len() - 1;
-        //     let range = match (row, col) {
-        //         (0, 0)                           => [[row,row+1],[col,col+1]],
-        //         (0, _col_max)              => [[row,row+1],[col-1,col]],
-        //         (row_max, 0)              => [[row-1,row],[col,col+1]],
-        //         (row_max, _col_max) => [[row-1,row],[col-1,col]],
-        //         (row_max, _)              => [[row-1,row],[col-1,col+1]],
-        //         (0, _)                           => [[row,row+1],[col-1,col+1]],
-        //         (_, 0)                           => [[row-1,row+1],[col,col+1]],
-        //         (_, _col_max)              => [[row-1,row+1],[col-1,col]],
-        //         _ => [[row-1,row+1],[col-1,col+1]],
-        //     };
-        //     for i in range[0][0]..range[0][1] { // row
-        //         for j in range[1][0]..range[1][1] { // col
-        //             self.master[i][j] += 1;
-        //         };
-        //     };
-        // }
 
         pub fn get_board(&self) -> &Vec<Vec<i8>> {
             &self.board
+        }
+
+        pub fn get_master(&self) -> &Vec<Vec<i8>> {
+            &self.master
         }
 
         pub fn make_guess(&mut self, x: i32, y: i32) {
