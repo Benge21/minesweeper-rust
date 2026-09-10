@@ -1,1 +1,0 @@
-rustc --crate-type=lib gameBoard.rs

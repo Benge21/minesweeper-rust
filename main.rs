@@ -11,16 +11,16 @@ fn main() -> std::io::Result<()> {
 
         loop {
             if let Event::Key(key_event) = event::read()? {
+                if key_event.kind != KeyEventKind::Press {
+                    continue;
+                }
+                
                 terminal.draw(|frame| {
                     frame.render_widget(
                         Paragraph::new(input.as_str()),
                         frame.area(),
                     );
                 })?;
-                
-                if key_event.kind != KeyEventKind::Press {
-                    continue;
-                }
 
                 match key_event.code {
                     KeyCode::Esc => break,
